@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Operative's Notebook — Field Intelligence Mastery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   ROOT & RESET
+============================================= */
+:root {
+  --black: #080808;
+  --bg: #0c0c0c;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: #2a2a2a;
+  --border2: #333;
+  --amber: #e8a020;
+  --amber-dim: #7a5210;
+  --amber-glow: rgba(232,160,32,0.15);
+  --red: #d63030;
+  --green: #2d8a4e;
+  --green-bright: #3ddc70;
+  --white: #f0ece4;
+  --muted: #5a5650;
+  --text: #ccc8c0;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --display: 'Bebas Neue', sans-serif;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--sans);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* =============================================
+   CUSTOM CURSOR
+============================================= */
+.cursor-dot {
+  width: 6px; height: 6px;
+  background: var(--amber);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s ease;
+}
+.cursor-ring {
+  width: 28px; height: 28px;
+  border: 1px solid rgba(232,160,32,0.5);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.15s ease, width 0.2s, height 0.2s, border-color 0.2s;
+}
+.cursor-ring.hover { width: 44px; height: 44px; border-color: var(--amber); }
+
+/* =============================================
+   NOISE TEXTURE OVERLAY
+============================================= */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9000;
+  opacity: 0.6;
+}
+
+/* =============================================
+   NAV
+============================================= */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+nav.scrolled {
+  background: rgba(8,8,8,0.95);
+  border-bottom-color: var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo .logo-icon {
+  width: 28px; height: 28px;
+  border: 1px solid var(--amber);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: var(--amber);
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1px;
+  background: var(--amber);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover { color: var(--amber); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-cta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--amber) !important;
+  border: 1px solid var(--amber-dim);
+  padding: 7px 16px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.2s !important;
+}
+
+.nav-cta:hover {
+  background: var(--amber-glow) !important;
+  border-color: var(--amber) !important;
+}
+
+.nav-cta::after { display: none !important; }
+
+/* hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.hamburger span {
+  display: block;
+  width: 24px; height: 1px;
+  background: var(--amber);
+  transition: all 0.3s;
+}
+
+/* =============================================
+   HERO SECTION
+============================================= */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 100px 80px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(232,160,32,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,160,32,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 30%; left: 10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(232,160,32,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-stamp {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--red);
+  border: 1px solid var(--red);
+  padding: 5px 14px;
+  display: inline-block;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s 0.2s forwards;
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s 0.4s forwards;
+}
+
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(72px, 12vw, 160px);
+  line-height: 0.88;
+  letter-spacing: 4px;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeSlideUp 0.8s 0.5s forwards;
+}
+
+.hero-title .line-amber { color: var(--amber); }
+.hero-title .line-outline {
+  -webkit-text-stroke: 1px rgba(240,236,228,0.3);
+  color: transparent;
+}
+
+.hero-sub {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 480px;
+  border-left: 2px solid var(--amber-dim);
+  padding-left: 20px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s 0.8s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s 1s forwards;
+}
+
+.btn-primary {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--black);
+  background: var(--amber);
+  border: none;
+  padding: 14px 32px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  font-weight: 500;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.btn-primary:hover {
+  background: var(--white);
+  box-shadow: 0 0 40px rgba(232,160,32,0.3);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: transparent;
+  border: 1px solid var(--amber-dim);
+  padding: 14px 32px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--amber);
+  background: var(--amber-glow);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  position: absolute;
+  right: 80px;
+  bottom: 60px;
+  display: flex;
+  gap: 48px;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s 1.2s forwards;
+}
+
+.stat-item { text-align: center; }
+
+.stat-num {
+  font-family: var(--display);
+  font-size: 48px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeIn 1s 2s forwards;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--amber), transparent);
+  animation: scrollPulse 1.5s infinite;
+}
+
+.scroll-text {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  writing-mode: horizontal-tb;
+}
+
+/* =============================================
+   TICKER STRIP
+============================================= */
+.ticker-strip {
+  width: 100%;
+  background: var(--amber);
+  padding: 10px 0;
+  overflow: hidden;
+  position: relative;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+}
+
+.ticker-inner {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+}
+
+.ticker-item {
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--black);
+  padding: 0 40px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.ticker-dot {
+  color: rgba(0,0,0,0.3);
+  padding: 0 10px;
+}
+
+/* =============================================
+   SECTION BASE
+============================================= */
+section {
+  padding: 100px 80px;
+  position: relative;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-label::before {
+  content: '';
+  display: block;
+  width: 30px; height: 1px;
+  background: var(--amber);
+}
+
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(40px, 6vw, 80px);
+  letter-spacing: 3px;
+  color: var(--white);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.section-sub {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+/* =============================================
+   BRIEFING SECTION (#about)
+============================================= */
+#about {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-top: 60px;
+}
+
+.about-left { }
+
+.about-right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+
+.about-card {
+  background: var(--surface);
+  padding: 28px;
+  transition: background 0.2s;
+}
+
+.about-card:hover { background: var(--surface2); }
+
+.about-card .card-icon {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.about-card .card-title {
+  font-family: var(--display);
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  margin-bottom: 8px;
+}
+
+.about-card .card-desc {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.divider-line {
+  width: 60px; height: 1px;
+  background: var(--amber-dim);
+  margin: 28px 0;
+}
+
+.about-quote {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--white);
+  line-height: 1.3;
+  padding-left: 20px;
+  border-left: 3px solid var(--amber);
+  margin-top: 28px;
+}
+
+/* =============================================
+   LEVELS SECTION (#levels)
+============================================= */
+#levels {
+  background: var(--black);
+  border-top: 1px solid var(--border);
+}
+
+.levels-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 60px;
+  gap: 40px;
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+}
+
+.level-card {
+  padding: 28px 20px;
+  border-right: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  overflow: hidden;
+  background: var(--black);
+}
+
+.level-card:last-child { border-right: none; }
+
+.level-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--amber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.level-card:hover::before, .level-card.active-card::before { transform: scaleX(1); }
+
+.level-card:hover { background: var(--surface); }
+.level-card.active-card { background: var(--surface); }
+
+.level-card.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.level-card.locked::before { display: none; }
+
+.level-card.completed .lc-num { color: var(--green-bright); }
+
+.lc-num {
+  font-family: var(--display);
+  font-size: 42px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  line-height: 1;
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+
+.lc-rank {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.lc-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: var(--white);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.lc-desc {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.lc-status {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
+.lc-status.done { color: var(--green-bright); }
+.lc-status.locked-s { color: var(--muted); }
+
+.lc-xp {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-family: var(--display);
+  font-size: 12px;
+  color: var(--amber-dim);
+  letter-spacing: 1px;
+}
+
+/* progress track below levels */
+.progress-track {
+  margin-top: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pt-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: var(--border2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pt-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+  width: 0%;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 10px rgba(232,160,32,0.4);
+}
+
+.pt-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.pt-xp {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--amber);
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+/* =============================================
+   COURSE SECTION (#course)
+============================================= */
+#course {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.course-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
+  margin-top: 60px;
+  align-items: start;
+}
+
+/* Sidebar */
+.course-sidebar {
+  position: sticky;
+  top: 84px;
+}
+
+.sidebar-nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  text-transform: uppercase;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.sidebar-item:last-child { border-bottom: none; }
+.sidebar-item:hover { background: var(--surface2); }
+.sidebar-item.active { background: var(--surface2); }
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--amber);
+}
+
+.sidebar-item.locked { opacity: 0.35; cursor: not-allowed; }
+.sidebar-item.locked:hover { background: transparent; }
+
+.si-num {
+  font-family: var(--display);
+  font-size: 20px;
+  color: var(--amber);
+  min-width: 28px;
+  line-height: 1;
+}
+
+.si-num.done { color: var(--green-bright); }
+
+.si-info { flex: 1; min-width: 0; }
+
+.si-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--white);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-op {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Main content */
+.course-main { }
+
+.lesson-placeholder {
+  border: 1px solid var(--border);
+  padding: 60px 40px;
+  text-align: center;
+  background: var(--surface);
+}
+
+.ph-icon { font-size: 48px; margin-bottom: 20px; opacity: 0.4; }
+
+.ph-title {
+  font-family: var(--display);
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.ph-desc {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.lesson-box {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  animation: fadeIn 0.3s ease;
+}
+
+.lesson-box.active { display: block; }
+
+.lesson-topbar {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: var(--surface2);
+}
+
+.ltb-left { }
+
+.ltb-op {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.ltb-title {
+  font-family: var(--display);
+  font-size: 24px;
+  letter-spacing: 2px;
+  color: var(--white);
+  text-transform: uppercase;
+}
+
+.ltb-right {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Tabs */
+.lesson-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  padding: 0 28px;
+}
+
+.ltab {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 14px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ltab:hover { color: var(--text); }
+.ltab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+.ltab-content { display: none; padding: 32px 28px; }
+.ltab-content.active { display: block; }
+
+/* =============================================
+   LESSON BODY STYLES
+============================================= */
+.lesson-body {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.lesson-body h3 {
+  font-family: var(--display);
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin: 28px 0 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.lesson-body h3:first-child { border-top: none; margin-top: 0; }
+
+.lesson-body p { margin-bottom: 14px; color: var(--text); }
+
+.lesson-body strong { color: var(--white); }
+
+.tip-box {
+  background: rgba(232,160,32,0.05);
+  border-left: 2px solid var(--amber);
+  padding: 14px 18px;
+  margin: 18px 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.tip-box .tip-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.highlight-box {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 18px 22px;
+  margin: 18px 0;
+}
+
+.highlight-box strong {
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  display: block;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  margin: 16px 0;
+  border: 1px solid var(--border);
+}
+
+.method-card {
+  background: var(--surface2);
+  padding: 16px;
+}
+
+.method-card .method-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.method-card p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+  font-family: var(--mono);
+}
+
+.dossier-line {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.dossier-line::before {
+  content: '▸';
+  color: var(--amber);
+  font-size: 10px;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.observation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+.obs-item {
+  background: var(--surface2);
+  padding: 14px 16px;
+  font-size: 13px;
+  font-family: var(--mono);
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.obs-item .obs-cat {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   QUIZ STYLES
+============================================= */
+.quiz-question {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+.q-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.q-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+
+.q-option {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 11px 16px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.q-option:hover { border-color: var(--amber); color: var(--amber); }
+.q-option.correct { border-color: var(--green-bright); color: var(--green-bright); background: rgba(61,220,112,0.06); }
+.q-option.wrong { border-color: var(--red); color: var(--red); background: rgba(214,48,48,0.06); }
+.q-option:disabled { cursor: not-allowed; }
+
+.q-letter { font-size: 10px; color: var(--muted); min-width: 20px; letter-spacing: 1px; }
+
+.q-feedback {
+  font-family: var(--mono);
+  font-size: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  display: none;
+  line-height: 1.5;
+}
+
+.q-feedback.show { display: block; }
+.q-feedback.correct { color: var(--green-bright); background: rgba(61,220,112,0.06); border-left: 2px solid var(--green-bright); }
+.q-feedback.wrong { color: var(--red); background: rgba(214,48,48,0.06); border-left: 2px solid var(--red); }
+
+.quiz-score-panel {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 24px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.qs-num {
+  font-family: var(--display);
+  font-size: 64px;
+  letter-spacing: 4px;
+  line-height: 1;
+}
+
+.qs-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   MEMORY PUZZLE STYLES
+============================================= */
+.puzzle-intro {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.7;
+  border-left: 2px solid var(--amber-dim);
+  padding-left: 14px;
+}
+
+.timer-display {
+  font-family: var(--display);
+  font-size: 56px;
+  letter-spacing: 4px;
+  color: var(--amber);
+  text-align: center;
+  margin: 16px 0;
+  text-shadow: 0 0 30px rgba(232,160,32,0.4);
+}
+
+.memory-sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+  justify-content: center;
+}
+
+.mem-item {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 12px 22px;
+  font-family: var(--display);
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  text-align: center;
+  min-width: 90px;
+}
+
+.scene-box {
+  background: var(--surface2);
+  border: 1px solid var(--amber-dim);
+  padding: 22px;
+  margin: 16px 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 2;
+  color: var(--text);
+}
+
+.scene-box .scene-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.puzzle-input-wrap {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+
+.puzzle-input {
+  flex: 1;
+  min-width: 140px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 11px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.puzzle-input:focus { border-color: var(--amber); }
+
+textarea.puzzle-input { min-height: 90px; resize: vertical; }
+
+.puzzle-result {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 12px 16px;
+  margin-top: 10px;
+  display: none;
+  line-height: 1.6;
+}
+
+.puzzle-result.show { display: block; }
+.puzzle-result.success { color: var(--green-bright); background: rgba(61,220,112,0.06); border-left: 2px solid var(--green-bright); }
+.puzzle-result.fail { color: var(--red); background: rgba(214,48,48,0.06); border-left: 2px solid var(--red); }
+
+.btn-amber {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: transparent;
+  border: 1px solid var(--amber-dim);
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-amber:hover { background: var(--amber-glow); border-color: var(--amber); }
+
+.btn-complete {
+  width: 100%;
+  margin-top: 28px;
+  padding: 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: var(--amber-glow);
+  border: 1px solid var(--amber-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-complete:hover { border-color: var(--amber); background: rgba(232,160,32,0.12); }
+.btn-complete.done { color: var(--green-bright); border-color: var(--green); background: rgba(61,220,112,0.06); }
+
+/* palace items */
+.palace-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.palace-row:last-child { border-bottom: none; }
+
+.palace-loc {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  min-width: 120px;
+  padding-top: 2px;
+  text-transform: uppercase;
+}
+
+.palace-item { font-size: 14px; color: var(--text); }
+
+/* pairs */
+.pair-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.pair-symbol { color: var(--amber); min-width: 60px; text-align: right; }
+.pair-arrow { color: var(--muted); }
+.pair-meaning { color: var(--text); }
+
+/* =============================================
+   FOOTER
+============================================= */
+footer {
+  background: var(--black);
+  border-top: 1px solid var(--border);
+  padding: 60px 80px 40px;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 30px;
+}
+
+.footer-brand .fb-logo {
+  font-family: var(--display);
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--amber);
+  margin-bottom: 12px;
+}
+
+.footer-brand p {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.footer-col h4 {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col ul li {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-col ul li::before {
+  content: '▸';
+  color: var(--amber-dim);
+  font-size: 9px;
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.fb-copy {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+
+.fb-classify {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--red);
+  border: 1px solid rgba(214,48,48,0.3);
+  padding: 4px 10px;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   ANIMATIONS
+============================================= */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes scrollPulse {
+  0%,100% { opacity: 1; transform: scaleY(1); }
+  50% { opacity: 0.3; transform: scaleY(0.7); }
+}
+
+@keyframes glitch {
+  0% { clip-path: inset(0 0 98% 0); }
+  10% { clip-path: inset(30% 0 50% 0); }
+  20% { clip-path: inset(60% 0 10% 0); }
+  30% { clip-path: inset(10% 0 80% 0); }
+  40% { clip-path: inset(90% 0 0% 0); }
+  50% { clip-path: inset(0 0 50% 0); }
+  100% { clip-path: inset(0 0 98% 0); }
+}
+
+/* =============================================
+   REVEAL ON SCROLL
+============================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+@media (max-width: 1100px) {
+  .levels-grid { grid-template-columns: repeat(4, 1fr); }
+  .level-card { border-bottom: 1px solid var(--border); }
+  .level-card:nth-child(4) { border-right: none; }
+  .level-card:nth-child(n+5) { border-right: 1px solid var(--border); }
+  .level-card:last-child { border-right: none; }
+}
+
+@media (max-width: 900px) {
+  #hero, section, footer { padding-left: 32px; padding-right: 32px; }
+  nav { padding: 0 24px; }
+  .hero-stats { right: 32px; bottom: 30px; gap: 24px; }
+  .stat-num { font-size: 36px; }
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .footer-top { grid-template-columns: 1fr; gap: 32px; }
+  .course-layout { grid-template-columns: 1fr; }
+  .course-sidebar { position: static; }
+  .sidebar-nav { max-height: 260px; overflow-y: auto; }
+  .levels-grid { grid-template-columns: repeat(2, 1fr); }
+  .levels-header { flex-direction: column; align-items: flex-start; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+}
+
+@media (max-width: 600px) {
+  #hero { padding: 90px 24px 40px; }
+  .hero-stats { position: static; flex-wrap: wrap; margin-top: 40px; justify-content: flex-start; }
+  .hero-title { font-size: 64px; }
+  section { padding: 60px 24px; }
+  footer { padding: 40px 24px 24px; }
+  .levels-grid { grid-template-columns: 1fr 1fr; }
+  .observation-grid { grid-template-columns: 1fr; }
+  .method-grid { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; }
+  nav { padding: 0 20px; }
+  .ltab-content { padding: 24px 18px; }
+  .lesson-topbar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- =============================================
+     NAV
+============================================= -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <div class="logo-icon">🕵</div>
+    OPERATIVE
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">Mission Brief</a></li>
+    <li><a href="#levels">The 7 Levels</a></li>
+    <li><a href="#course">Enter Program</a></li>
+    <li><a href="#course" class="nav-cta">Begin Training</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- =============================================
+     HERO
+============================================= -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-stamp">⬛ Top Secret ⬛</div>
+  <div class="hero-eyebrow">// Field Intelligence Mastery Program //</div>
+
+  <h1 class="hero-title">
+    <span class="line-amber">The</span><br>
+    Operative's<br>
+    <span class="line-outline">Notebook</span>
+  </h1>
+
+  <p class="hero-sub">
+    From raw recruit to ghost-level agent.<br>
+    Seven missions. Quizzes. Memory ciphers.<br>
+    Train your perception to see what others can't.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#course" class="btn-primary">▶ Enter the Program</a>
+    <a href="#levels" class="btn-secondary">View Curriculum →</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">07</div>
+      <div class="stat-label">Levels</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">21</div>
+      <div class="stat-label">Quizzes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">07</div>
+      <div class="stat-label">Ciphers</div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <div class="scroll-text">Scroll</div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-strip">
+  <div class="ticker-inner" id="tickerInner">
+    <!-- items filled by JS -->
+  </div>
+</div>
+
+<!-- =============================================
+     ABOUT
+============================================= -->
+<section id="about">
+  <div class="section-label reveal">Mission Brief</div>
+  <div class="about-grid">
+    <div class="about-left reveal">
+      <h2 class="section-title">Why Most Notes<br>Are Useless</h2>
+      <div class="divider-line"></div>
+      <p class="section-sub" style="margin-bottom:16px">
+        Most people are transcribers — they record everything and process nothing. A trained operative is a processor: capturing signal, discarding noise, connecting patterns invisible to the untrained eye.
+      </p>
+      <p class="section-sub" style="margin-bottom:16px">
+        This program runs you through 7 levels of increasing sophistication — from writing your first structured note to building memory palaces, reading rooms in 4 seconds, and thinking three moves ahead.
+      </p>
+      <div class="about-quote">"The notebook is the weapon.<br>The agent is its wielder."</div>
+    </div>
+    <div class="about-right reveal">
+      <div class="about-card">
+        <div class="card-icon">✍️</div>
+        <div class="card-title">Capture</div>
+        <div class="card-desc">Learn to write less and understand more. Cornell, BLUF, speedwriting.</div>
+      </div>
+      <div class="about-card">
+        <div class="card-icon">👁️</div>
+        <div class="card-title">Observe</div>
+        <div class="card-desc">Hear the unsaid. Read layers of information in any conversation.</div>
+      </div>
+      <div class="about-card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Remember</div>
+        <div class="card-desc">Build memory palaces. Encode, chunk, and recall with precision.</div>
+      </div>
+      <div class="about-card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">Analyze</div>
+        <div class="card-desc">Connect dots. Find patterns. Think in second and third order.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     LEVELS MAP
+============================================= -->
+<section id="levels">
+  <div class="levels-header reveal">
+    <div>
+      <div class="section-label">The Curriculum</div>
+      <h2 class="section-title">7 Levels of<br>Mastery</h2>
+    </div>
+    <p class="section-sub" style="align-self:flex-end">
+      Each level unlocks after completing the previous. Every mission contains a full dossier, a 3-question debrief, and a timed memory cipher.
+    </p>
+  </div>
+
+  <div class="levels-grid reveal" id="levelsGrid"></div>
+  <div class="progress-track">
+    <div class="pt-label" id="ptLabel">CLEARANCE: 0 / 7</div>
+    <div class="pt-bar-wrap">
+      <div class="pt-bar" id="ptBar"></div>
+    </div>
+    <div class="pt-xp" id="ptXP">0 XP</div>
+  </div>
+</section>
+
+<!-- =============================================
+     COURSE
+============================================= -->
+<section id="course">
+  <div class="section-label reveal">Enter the Field</div>
+  <h2 class="section-title reveal">Your Training<br>Program</h2>
+  <p class="section-sub reveal" style="margin-bottom:0">Select a level from the sidebar. Each mission has three tabs: Dossier (lesson), Debrief (quiz), and Cipher (memory puzzle).</p>
+
+  <div class="course-layout">
+    <!-- Sidebar -->
+    <div class="course-sidebar reveal">
+      <div class="sidebar-nav" id="sidebarNav"></div>
+    </div>
+
+    <!-- Main panel -->
+    <div class="course-main" id="courseMain">
+      <div class="lesson-placeholder" id="lessonPlaceholder">
+        <div class="ph-icon">🕵️</div>
+        <div class="ph-title">AWAITING ORDERS</div>
+        <div class="ph-desc">// Select a level from the sidebar to begin //</div>
+      </div>
+      <div id="lessonContainer"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     FOOTER
+============================================= -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="fb-logo">OPERATIVE</div>
+      <p>A seven-level field intelligence mastery program. Train your perception, sharpen your memory, and learn to see what others can't.</p>
+    </div>
+    <div class="footer-col">
+      <h4>The 7 Levels</h4>
+      <ul>
+        <li>The Raw Recruit</li>
+        <li>The Observer</li>
+        <li>The Analyst</li>
+        <li>The Profiler</li>
+        <li>The Operative</li>
+        <li>The Field Agent</li>
+        <li>The Secret Agent</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Techniques Covered</h4>
+      <ul>
+        <li>Cornell Method</li>
+        <li>Memory Palace</li>
+        <li>OODA Loop</li>
+        <li>5-Layer Listening</li>
+        <li>Speedwriting</li>
+        <li>Pattern Detection</li>
+        <li>Second-Order Thinking</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="fb-copy">// OPERATIVE'S NOTEBOOK — FIELD INTELLIGENCE MASTERY //</div>
+    <div class="fb-classify">⬛ Classified ⬛</div>
+  </div>
+</footer>
+
+<script>
+/* =============================================
+   CURSOR
+============================================= */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx + 'px';
+  dot.style.top = my + 'px';
+});
+
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+document.querySelectorAll('a, button, .level-card, .sidebar-item, .q-option').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+});
+
+/* =============================================
+   NAVBAR SCROLL
+============================================= */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* =============================================
+   TICKER
+============================================= */
+const tickerItems = ['Cornell Method','Memory Palace','OODA Loop','5-Layer Listening','Speedwriting','Pattern Recognition','Second-Order Thinking','Field Observation','Cipher Training','BLUF Protocol'];
+const ti = document.getElementById('tickerInner');
+const repeated = [...tickerItems, ...tickerItems];
+ti.innerHTML = repeated.map(t => `<span class="ticker-item">${t}<span class="ticker-dot">◆</span></span>`).join('');
+
+/* =============================================
+   REVEAL ON SCROLL
+============================================= */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* =============================================
+   MOBILE MENU
+============================================= */
+function toggleMobileMenu() {
+  const links = document.querySelector('.nav-links');
+  if (links.style.display === 'flex') {
+    links.style.display = '';
+  } else {
+    links.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:64px;left:0;right:0;background:rgba(8,8,8,0.98);padding:20px 32px;gap:20px;border-bottom:1px solid var(--border);z-index:999;';
+    links.querySelectorAll('a').forEach(a => { a.addEventListener('click', () => { links.style.display = ''; }); });
+  }
+}
+
+/* =============================================
+   DATA — 7 LEVELS
+============================================= */
+const levels = [
+  {
+    id:1, rank:'RECRUIT', title:'The Raw Recruit', codename:'OPERATION: FIRST MARK',
+    desc:'Pen meets paper. The basics.', xp:100,
+    lesson:`<div class="lesson-body">
+      <p>Every legend starts here. Before you can read a room, decode a pattern, or remember what others forget — you must master the art of <strong>capturing information</strong>.</p>
+      <h3>Why Most Notes Fail</h3>
+      <p>Most people write transcripts. They copy everything. By the time they're done, they've processed nothing. A recruit who writes everything is just a tape recorder — fragile, passive, replaceable.</p>
+      <div class="tip-box"><div class="tip-label">⚡ Agent Protocol</div>Your pen is a scalpel, not a mop. Cut out the signal. Leave the noise.</div>
+      <h3>The Cornell Method — Your First Weapon</h3>
+      <p>Divide your page into three zones:</p>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name">📋 Main Notes (Right)</div><p>During capture — write key ideas, not every word. Abbreviate ruthlessly.</p></div>
+        <div class="method-card"><div class="method-name">🔍 Cue Column (Left)</div><p>After — keywords and questions that trigger recall. Your retrieval anchor.</p></div>
+        <div class="method-card"><div class="method-name">📌 Summary (Bottom)</div><p>Within 24hrs — 2-3 sentences in YOUR words. Can't summarize it? You don't own it.</p></div>
+      </div>
+      <h3>The 3-R Rule</h3>
+      <div class="dossier-line"><span><strong>Record</strong> — Capture only key ideas. Use short phrases, not sentences.</span></div>
+      <div class="dossier-line"><span><strong>Reduce</strong> — After the session, condense. What's the core? Highlight patterns.</span></div>
+      <div class="dossier-line"><span><strong>Recite</strong> — Cover your notes. Recall from cues. This is where memory forms.</span></div>
+      <h3>Abbreviation Arsenal</h3>
+      <div class="highlight-box"><strong>Build Your Personal Shorthand</strong><p style="font-family:var(--mono);font-size:12px;line-height:2">w/ = with &nbsp;|&nbsp; b/c = because &nbsp;|&nbsp; → = leads to<br>∴ = therefore &nbsp;|&nbsp; ≈ = approximately &nbsp;|&nbsp; ↑ = increasing<br>eg = example &nbsp;|&nbsp; imp = important &nbsp;|&nbsp; ? = unclear/question</p></div>
+      <div class="tip-box"><div class="tip-label">🕵️ Field Note</div>Real agents use the "BLUF" principle — Bottom Line Up Front. Write the conclusion first, then the evidence. Your brain stores it better when context follows the answer.</div>
+    </div>`,
+    quiz:[
+      {q:"What is the primary mistake most note-takers make?", options:["Using too many colors","Writing transcripts instead of key ideas","Not dating their notes","Using lined paper"], correct:1, feedback:"Exactly. Transcribing everything is passive. You're a processor, not a recorder."},
+      {q:"In the Cornell Method, what goes in the LEFT (cue) column?", options:["Full sentences from the source","Doodles and diagrams","Keywords and questions that trigger recall","The date and topic"], correct:2, feedback:"The cue column is your retrieval anchor — the hook that pulls memory back up."},
+      {q:"What does BLUF stand for?", options:["Basic Learning Under Format","Bottom Line Up Front","Begin List Under Framework","Bold Letters Underline Facts"], correct:1, feedback:"BLUF — used by military briefers. Lead with the conclusion. Then the evidence."}
+    ],
+    memory:{type:'sequence', intro:'Study this code sequence for 15 seconds. Then it disappears. Recall it in order.', items:['BRAVO','07','ECHO','DELTA','42','KILO'], answer:'BRAVO,07,ECHO,DELTA,42,KILO'}
+  },
+  {
+    id:2, rank:'OBSERVER', title:'The Observer', codename:'OPERATION: OPEN EYES',
+    desc:'Listen for what isn\'t said.', xp:150,
+    lesson:`<div class="lesson-body">
+      <p>An observer doesn't just hear — they <strong>listen architecturally</strong>. They notice the structure behind words, the gaps between sentences, the pause before an answer.</p>
+      <h3>The 5-Layer Information Model</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name">Layer 1 — Facts</div><p>Objective data. Names, numbers, dates, events.</p></div>
+        <div class="method-card"><div class="method-name">Layer 2 — Opinions</div><p>Judgments dressed as facts. Watch for "obviously", "clearly", "everyone knows."</p></div>
+        <div class="method-card"><div class="method-name">Layer 3 — Emotions</div><p>Tone shifts, hesitation, emphasis. What changed their energy?</p></div>
+        <div class="method-card"><div class="method-name">Layer 4 — Gaps</div><p>What topics were avoided? What questions went unanswered?</p></div>
+        <div class="method-card"><div class="method-name">Layer 5 — Patterns</div><p>Repeated words or themes. What keeps coming back?</p></div>
+      </div>
+      <h3>Notation for Layers</h3>
+      <div class="highlight-box"><strong>Multi-Layer Note Symbols</strong><p style="font-family:var(--mono);font-size:12px;line-height:2">[F] = Fact &nbsp;|&nbsp; [O] = Opinion &nbsp;|&nbsp; [E] = Emotion shift<br>[G] = Gap / avoided &nbsp;|&nbsp; [P] = Pattern detected<br>★ = Unusually emphatic &nbsp;|&nbsp; ~ = uncertain/evasive</p></div>
+      <div class="tip-box"><div class="tip-label">⚡ Agent Protocol</div>When someone speaks, mentally ask: What is the core claim? What evidence supports it? What are they NOT saying?</div>
+      <h3>The Echo Technique</h3>
+      <p>After a briefing, close your notes and mentally replay the last 10 minutes. Write what you remember WITHOUT looking. Then open and compare. The gaps in your replay are your blind spots.</p>
+      <div class="tip-box"><div class="tip-label">🕵️ Field Note</div>CIA analysts distinguish between what a source SAID and what they MEANT. Always create two columns: "Stated" and "Implied." The intelligence lives in the second column.</div>
+    </div>`,
+    quiz:[
+      {q:"Which layer captures things that were NOT discussed?", options:["Layer 1 — Facts","Layer 3 — Emotions","Layer 4 — Gaps","Layer 5 — Patterns"], correct:2, feedback:"Gaps are often the most revealing layer. The dog that didn't bark is evidence."},
+      {q:"What does [E] represent in the notation system?", options:["Evidence","Example","Emotion shift","Error"], correct:2, feedback:"Emotion shifts — a change in tone, speed, or energy — often signal where real information lives."},
+      {q:"What is the purpose of the Echo Technique?", options:["To copy notes twice for backup","To identify memory gaps by recalling without looking","To repeat what you heard verbatim","To practice speed-writing"], correct:1, feedback:"The gap between what you remember and what's on the page is precisely what needs training."}
+    ],
+    memory:{type:'scene', intro:'Study this scene report for 20 seconds. Answer questions from memory after it disappears.', secs:20,
+      scene:'LOCATION: Café Meridian, Table 7 — 14:32hrs\nSubject wore charcoal blazer, no tie. Left hand: wedding ring. Right hand: ink stain, index finger. Ordered black coffee — didn\'t drink it. Checked phone 3× in 8 minutes. Made eye contact with the door every 90 seconds. Briefcase: scuffed left corner, airline tag (red — international). Spoke in short sentences. Never said the client\'s name.',
+      questions:[{q:"What did the subject order?",a:"black coffee"},{q:"How many times did they check their phone?",a:"3"},{q:"Which corner of the briefcase was scuffed?",a:"left"}]}
+  },
+  {
+    id:3, rank:'ANALYST', title:'The Analyst', codename:'OPERATION: MIND MAP',
+    desc:'Connect the dots others miss.', xp:200,
+    lesson:`<div class="lesson-body">
+      <p>Intelligence isn't about collecting data — it's about <strong>finding the architecture beneath it</strong>. An analyst sees relationships, hierarchies, and contradictions in seconds.</p>
+      <h3>The 4-Color Intelligence System</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name" style="color:#4ab8d8">🔵 Blue — Facts</div><p>Verifiable data. Dates, numbers, confirmed events.</p></div>
+        <div class="method-card"><div class="method-name" style="color:var(--amber)">🟠 Orange — Inferences</div><p>Logical conclusions drawn from facts. May be wrong.</p></div>
+        <div class="method-card"><div class="method-name" style="color:var(--green-bright)">🟢 Green — Connections</div><p>Links between two separate pieces of information.</p></div>
+        <div class="method-card"><div class="method-name" style="color:var(--red)">🔴 Red — Contradictions</div><p>When two pieces of info conflict. Flag immediately.</p></div>
+      </div>
+      <h3>The "So What?" Filter</h3>
+      <p>After every note cluster, write "SO WHAT?" and force an answer. This converts raw data into actionable intelligence. Data without implication is noise.</p>
+      <div class="highlight-box"><strong>Example — Analyst's Note</strong><p style="font-family:var(--mono);font-size:12px;line-height:2">[F] Revenue fell 12% in Q3<br>[F] CEO sold 40% of shares in August<br>[O] Company calls it "restructuring"<br>[G] No mention of Q4 forecast<br>[C] → CEO had insider knowledge before announcement<br>SO WHAT? → Do not invest. Flag for legal review.</p></div>
+      <h3>The Web Diagram for Relationships</h3>
+      <p>When tracking people or events, use a web diagram: each entity is a node, each relationship is a labeled arrow. Label the arrow with the nature of connection (financial, personal, conflict). Nodes with the most arrows are usually most important.</p>
+      <div class="tip-box"><div class="tip-label">🕵️ Field Note</div>FBI analysts are taught: "The absence of evidence is not the evidence of absence." When a pattern breaks, ask why the data point is missing.</div>
+    </div>`,
+    quiz:[
+      {q:"In the 4-Color Intelligence System, what does RED represent?", options:["Very important facts","Emotional moments","Contradictions between two pieces of information","Red herrings"], correct:2, feedback:"Red = contradiction. When information conflicts, that's where the real story usually lives."},
+      {q:"What is the purpose of the 'So What?' filter?", options:["To question every fact","To convert raw data into actionable intelligence","To delete irrelevant notes","To challenge the speaker's motives"], correct:1, feedback:"Data without implication is just noise. 'So what?' forces you to extract meaning."},
+      {q:"In a web diagram, nodes with the most arrows are usually...", options:["Least important","The most important entities","Confirmed suspects","Red herrings"], correct:1, feedback:"High-connectivity nodes are hubs of influence, information, or causation."}
+    ],
+    memory:{type:'pairs', intro:'Memorize these symbol-meaning pairs for 15 seconds. Match them after they disappear.',
+      pairs:[{symbol:'[F]',meaning:'Fact'},{symbol:'[G]',meaning:'Gap'},{symbol:'★',meaning:'Emphatic'},{symbol:'[P]',meaning:'Pattern'},{symbol:'~',meaning:'Evasive'},{symbol:'[C]',meaning:'Connection'}]}
+  },
+  {
+    id:4, rank:'PROFILER', title:'The Profiler', codename:'OPERATION: MEMORY PALACE',
+    desc:'Build rooms in your mind.', xp:250,
+    lesson:`<div class="lesson-body">
+      <p>A profiler doesn't forget. Not because they have a photographic memory — but because they've built <strong>architecture inside their mind</strong> where information lives in rooms, attached to images, impossible to lose.</p>
+      <h3>The Memory Palace (Method of Loci)</h3>
+      <p>Used by Cicero. Used by Sherlock Holmes. Used by World Memory Champions. Choose a familiar place — your home, your school route. Mentally walk through it. At each distinct location, place a vivid, exaggerated image representing what you want to remember.</p>
+      <div class="tip-box"><div class="tip-label">⚡ Agent Protocol</div>The stranger, more violent, more sensory, and more emotional the image — the longer it sticks. Your brain evolved to remember threats and excitement, not facts.</div>
+      <h3>Building Your First Palace</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name">Step 1 — Choose a Route</div><p>Walk through your home mentally. Identify 10 distinct "stations" in order.</p></div>
+        <div class="method-card"><div class="method-name">Step 2 — Create Images</div><p>For each piece of information, create a bizarre, vivid, moving image.</p></div>
+        <div class="method-card"><div class="method-name">Step 3 — Place & Walk</div><p>Place each image at a station. Walk the route three times mentally.</p></div>
+        <div class="method-card"><div class="method-name">Step 4 — Review</div><p>Re-walk 1hr later, 1 day later, 1 week later. Spaced repetition locks it permanently.</p></div>
+      </div>
+      <h3>The Chunking Principle</h3>
+      <p>Your working memory holds 7 ± 2 items. Beat this by chunking: group items into meaningful clusters. A phone number isn't 10 digits — it's 3 chunks. A speech isn't 500 words — it's 5 ideas.</p>
+      <div class="tip-box"><div class="tip-label">🕵️ Field Note</div>Ex-CIA officer Chase Hughes states that agents develop "anchor memories" — one vivid sensory memory at each location that acts as a chain to retrieve all related intelligence.</div>
+    </div>`,
+    quiz:[
+      {q:"What is the Memory Palace technique also known as?", options:["The Chunking Protocol","Method of Loci","Spaced Repetition System","The Recall Loop"], correct:1, feedback:"Method of Loci — 'loci' means locations. Used by ancient Greek and Roman orators."},
+      {q:"Why should memory images be bizarre and exaggerated?", options:["They're easier to draw","Your brain evolved to remember threats and excitement, not neutral facts","They take less mental space","They're easier to describe"], correct:1, feedback:"Emotion and novelty are the brain's priority encoding flags. Boring = forgotten."},
+      {q:"What is the average working memory limit per Miller's Law?", options:["3 ± 1 items","7 ± 2 items","12 ± 3 items","5 ± 1 items"], correct:1, feedback:"Miller's Law: 7 ± 2 chunks. Chunking is how experts 'expand' this limit."}
+    ],
+    memory:{type:'palace', intro:'Study these 5 Memory Palace stations for 20 seconds. Recall them after they disappear.',
+      items:[{location:'Front Door',item:'🔴 A giant red clock melting over the doorknob'},{location:'Hallway',item:'🐊 A crocodile doing push-ups on your carpet'},{location:'Kitchen',item:'🚀 A rocket launching from your stove'},{location:'Living Room',item:'🧊 Your sofa made entirely of solid ice'},{location:'Window',item:'🦁 A lion wearing sunglasses, looking outside'}],
+      questions:[{q:"What is at the Hallway?",a:"crocodile"},{q:"What is at the Kitchen?",a:"rocket"},{q:"What is at the Window?",a:"lion"}]}
+  },
+  {
+    id:5, rank:'OPERATIVE', title:'The Operative', codename:'OPERATION: RAPID CAPTURE',
+    desc:'Speed and precision under fire.', xp:300,
+    lesson:`<div class="lesson-body">
+      <p>In the field, you won't have time to write paragraphs. You'll have seconds. An operative's notes must be <strong>fast, encrypted, and deniable</strong> — a system only they can read at full speed.</p>
+      <h3>The Speedwriting System</h3>
+      <p>Eliminate vowels. Shorten suffixes. Use symbols for common phrases. A skilled operative can take 300-word-per-minute notes with almost no quality loss.</p>
+      <div class="highlight-box"><strong>Core Speedwriting Rules</strong><p style="font-family:var(--mono);font-size:12px;line-height:2">Drop vowels: "meeting" → "mtng" | "because" → "bcz"<br>Use numbers: "to/two/too" → "2" | "for/four" → "4"<br>Suffix codes: -tion → "n" | -ing → "g" | -ment → "m"<br>Arrow logic: → (leads to) ← (caused by) ↔ (related)<br>Symbols: $ = money/value | @ = location | ⊕ = conflict</p></div>
+      <h3>Operative Markup System</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name">📍 Anchor Notes</div><p>One bold word at the start of every new idea. Lets you skim and locate instantly.</p></div>
+        <div class="method-card"><div class="method-name">🔲 Action Boxes</div><p>Draw a small box around any task. Never miss a follow-up again.</p></div>
+        <div class="method-card"><div class="method-name">★ Signal Stars</div><p>1 star = interesting. 2 stars = important. 3 stars = critical. Don't overuse.</p></div>
+        <div class="method-card"><div class="method-name">? Doubt Flags</div><p>Mark anything unverified. Review and confirm before acting.</p></div>
+      </div>
+      <div class="tip-box"><div class="tip-label">⚡ Agent Protocol</div>Date and time-stamp EVERY note. Always. Intelligence without a timestamp is almost worthless. Context is time.</div>
+      <div class="tip-box"><div class="tip-label">🕵️ Field Note</div>Operative's Golden Rule: If you can't find the right note in under 10 seconds, your system is broken. Index everything. Your notebook is a searchable database, not a diary.</div>
+    </div>`,
+    quiz:[
+      {q:"What is the Speedwriting abbreviation for 'meeting'?", options:["mting","mtng","meetg","mtn"], correct:1, feedback:"Drop the vowels: m-t-n-g. Fast, readable, unambiguous with context."},
+      {q:"Why must every note be date AND time-stamped?", options:["For legal reasons","Intelligence without a timestamp loses context and sequence","To fill space on the page","Habit from school"], correct:1, feedback:"Context is time. The same information means different things at different points."},
+      {q:"In the Action Box system, how do you mark a task or follow-up?", options:["Highlight in yellow","Underline twice","Draw a small box around it","Write TODO: before it"], correct:2, feedback:"The box is visual — your eye catches it on a skim. No scanning through text required."}
+    ],
+    memory:{type:'decode', intro:'Decode this operative field note written in speedwriting. Identify what it says.',
+      encoded:'Tgt arrvd @ HQ @ 1430. Crrd blk brf cs. Mtng w/ 2 unknwn cntcts → rvw CCTV. ★★ URGNT',
+      answer:'target arrived at headquarters at 1430. carried black briefcase. meeting with two unknown contacts → review cctv.',
+      hint:'tgt=target, arrvd=arrived, @=at, crrd=carried, blk=black, brf cs=briefcase, mtng=meeting, w/=with, unknwn=unknown, cntcts=contacts'}
+  },
+  {
+    id:6, rank:'FIELD AGENT', title:'The Field Agent', codename:'OPERATION: BASELINE',
+    desc:'Read rooms. Read people.', xp:350,
+    lesson:`<div class="lesson-body">
+      <p>You walk into a room. In 4 seconds, most people have clocked the furniture. A field agent has already recorded the exits, power dynamics, who's watching whom, and three anomalies. <strong>This is trained perception.</strong></p>
+      <h3>The Baseline Protocol</h3>
+      <p>Every environment has a normal. "Baseline" is that normal. To spot the unusual, you must first establish what usual looks like. This is the foundational skill of all human intelligence gathering.</p>
+      <h3>The OODA Loop</h3>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name">👁️ Observe</div><p>Raw input. What's actually there? No judgment yet.</p></div>
+        <div class="method-card"><div class="method-name">🧩 Orient</div><p>Compare to baseline. What fits? What doesn't?</p></div>
+        <div class="method-card"><div class="method-name">🎯 Decide</div><p>What's the most likely explanation for the anomaly?</p></div>
+        <div class="method-card"><div class="method-name">⚡ Act</div><p>Respond — investigate, record, or move on.</p></div>
+      </div>
+      <h3>The 5-Category Observation Grid</h3>
+      <div class="observation-grid">
+        <div class="obs-item"><div class="obs-cat">01 — Physical</div>Height, build, dominant hand, age range, distinguishing features.</div>
+        <div class="obs-item"><div class="obs-cat">02 — Behavioral</div>Pace of movement, eye contact patterns, proximity to exits.</div>
+        <div class="obs-item"><div class="obs-cat">03 — Contextual</div>Do they fit here? Dress, tools, demeanor match the environment?</div>
+        <div class="obs-item"><div class="obs-cat">04 — Relational</div>Who are they with? Who are they avoiding? Who keeps watching them?</div>
+        <div class="obs-item"><div class="obs-cat">05 — Temporal</div>How long have they been here? Have they changed position or behavior?</div>
+      </div>
+      <div class="highlight-box"><strong>The Kim's Game Training Method</strong><p style="font-family:var(--mono);font-size:12px;line-height:1.8">Used in spy training since Rudyard Kipling's novel "Kim."<br>Method: Place 15 objects on a tray. Study 60 seconds. Cover. List all you recall.<br>Elite agents: 13–15. Beginners: 7–9. Train daily. Your score IS your awareness score.</p></div>
+      <div class="tip-box"><div class="tip-label">🕵️ Field Note</div>In every meeting, note who speaks first, who defers to whom, and who controls the pace. These reveal the real hierarchy — not the org chart.</div>
+    </div>`,
+    quiz:[
+      {q:"What is a 'baseline' in field observation?", options:["The minimum acceptable standard for a report","The normal, expected state of an environment","The lowest-ranking agent in a team","The first observation you make"], correct:1, feedback:"Baseline = normal. You can only spot anomalies if you know what normal looks like first."},
+      {q:"In the OODA loop, what happens in the ORIENT phase?", options:["You take action based on instincts","You compare observations against your baseline to detect anomalies","You gather more information","You decide on the best response"], correct:1, feedback:"Orient is where training matters most. Your mental models of 'normal' determine what stands out."},
+      {q:"What does 'Contextual' mean in the 5-Category Grid?", options:["Historical background of the person","Whether the person fits their environment","The emotional mood of the scene","Their relationships with others"], correct:1, feedback:"A person in the wrong environment is a signal. Out-of-place dress, tools, or demeanor is observable intelligence."}
+    ],
+    memory:{type:'scene', secs:25, intro:'Read this observation report. Memorize in 25 seconds. Answer questions from memory.',
+      scene:'ENTRY LOG — 09:17hrs — Conference Room B\n\nPresent: 6 persons. Power seat (head): Female, late 40s, navy suit, no notes — relies on memory. To her right: young male, excessive notes, glancing at her after every statement. Third seat left: empty chair — someone expected but absent. Near door: older male, arms crossed, no eye contact with others. Two individuals speaking only to each other — isolated pair. One coffee mug, no owner visible. Whiteboard erased but marker residue visible — meeting was not the first today.',
+      questions:[{q:"What was unusual about the power seat holder's notes?",a:"no notes"},{q:"How many people were present?",a:"6"},{q:"What did the whiteboard residue indicate?",a:"not the first meeting"}]}
+  },
+  {
+    id:7, rank:'SECRET AGENT', title:'The Secret Agent', codename:'OPERATION: GHOST SIGNAL',
+    desc:'See what no one else sees.', xp:500,
+    lesson:`<div class="lesson-body">
+      <p>You've trained your hands, your eyes, your memory, and your analysis. Now comes the level that separates a skilled professional from a <strong>ghost</strong> — someone who reads the world like a page, sees patterns before they form, and captures truth before it's spoken.</p>
+      <h3>The Iceberg Intelligence Model</h3>
+      <p>Any situation you observe is the tip of an iceberg. 10% is visible. 90% is submerged. A secret agent's note captures both — and is explicit about which is which.</p>
+      <div class="tip-box"><div class="tip-label">⚡ Agent Protocol</div>Label every note entry: OBSERVED / INFERRED / ASSUMED. Never conflate them. The moment an assumption is treated as fact, your intelligence is compromised.</div>
+      <h3>Pattern Interrupt Detection</h3>
+      <p>The most valuable intelligence is a break in a pattern. If someone always calls at 9am and today they didn't — that silence is a signal. Train your notes to track patterns explicitly so you can detect their interruption.</p>
+      <div class="highlight-box"><strong>Pattern Tracking System</strong><p style="font-family:var(--mono);font-size:12px;line-height:1.8">[Entity] → [Expected Behavior] → [Actual Behavior] → [Delta]<br><br>Example: [Client X] → [responds w/in 2hrs] → [48hr silence] → [⚠ DELTA: investigate]</p></div>
+      <h3>Second-Order Thinking in Notes</h3>
+      <p>First-order: "The competitor lowered their price." Second-order: "They're burning margin — why? Cash pressure? Market share grab?" Third-order: "If we respond by matching price, they may be hoping we do — to drain our reserves too."</p>
+      <p>Your notes must capture all three orders, labeled clearly. First-order notes are for beginners. Third-order notes are for ghosts.</p>
+      <div class="method-grid">
+        <div class="method-card"><div class="method-name">🔍 The Anomaly Log</div><p>A dedicated section for things that don't fit. Collect them. Don't explain them. Patterns emerge later.</p></div>
+        <div class="method-card"><div class="method-name">🕸️ The Thread</div><p>A single line at the top: "The thread I'm following is ___." Keeps every observation purposeful.</p></div>
+        <div class="method-card"><div class="method-name">📅 The Temporal Map</div><p>Plot key events on a timeline. Causation only becomes visible when sequence is clear.</p></div>
+        <div class="method-card"><div class="method-name">🪞 The Mirror Entry</div><p>End each day: "What did I miss today? What did I assume without checking?" Brutal honesty.</p></div>
+      </div>
+      <div class="tip-box"><div class="tip-label">🕵️ Final Dispatch</div>The secret isn't supernatural perception. It's disciplined attention, trained over time, organized on paper, and reviewed relentlessly. The notebook is the weapon. The agent is its wielder. Go — the field awaits.</div>
+    </div>`,
+    quiz:[
+      {q:"In the Iceberg Intelligence Model, approximately what percentage is 'visible'?", options:["50%","25%","10%","75%"], correct:2, feedback:"10% is visible. The 90% submerged is accessed through inference, pattern detection, and gap analysis."},
+      {q:"What is 'second-order thinking' in note-taking?", options:["Writing a second draft of notes","Asking why something happened and what it implies beyond the surface","Taking notes from a second source","Double-checking your facts"], correct:1, feedback:"Second-order: 'And then what? And why?' It's the difference between recording events and understanding them."},
+      {q:"What is the purpose of the Pre-Mortem Note?", options:["To summarize after a project ends","To imagine future failure and identify what you're currently ignoring","To grieve failed operations","To document past mistakes"], correct:1, feedback:"Write the failure from the future. It forces you to surface hidden assumptions and blind spots before they become real."}
+    ],
+    memory:{type:'decode', intro:'Final cipher test. Decode this compressed field briefing AND identify the three key intelligence signals.',
+      encoded:'Tgt [ATLAS] arrvd 3dy erly. Chngd htl 2x — no prn rsn. Cntcts: 2 knwn [see file 7], 1 UNKNWN ★★★. Ptrn brk: nrml cmmnctn @ 0800 — SLNT 48hrs. [G] No mntn of Brsls mtn. SO WHAT? → Cntroptn lkly. OBSRVD nt CNFRMD.',
+      answer:'signals: arrived early, changed hotel twice, 48 hour silence',
+      hint:'Look for: unexpected timing (3dy erly), behavioral changes (Chngd htl 2x), and pattern breaks (SLNT 48hrs). These are the three intelligence signals.'}
+  }
+];
+
+/* =============================================
+   STATE
+============================================= */
+let completedLevels = JSON.parse(localStorage.getItem('opCompleted') || '[]');
+let totalXP = parseInt(localStorage.getItem('opXP') || '0');
+let currentLevelId = null;
+let quizAnswered = {};
+let memTimers = {};
+
+/* =============================================
+   LEVEL MAP RENDER
+============================================= */
+function renderLevelMap() {
+  const grid = document.getElementById('levelsGrid');
+  grid.innerHTML = levels.map((l, i) => {
+    const unlocked = i === 0 || completedLevels.includes(levels[i-1].id);
+    const done = completedLevels.includes(l.id);
+    const locked = !unlocked;
+    return `<div class="level-card ${done?'completed':''} ${locked?'locked':''}" onclick="${locked?'':'openLevel('+l.id+')'}" id="lc-${l.id}">
+      <div class="lc-xp">${l.xp}XP</div>
+      <div class="lc-num ${done?'done':''}">0${l.id}</div>
+      <div class="lc-rank">${l.rank}</div>
+      <div class="lc-title">${l.title}</div>
+      <div class="lc-desc">${l.desc}</div>
+      <div class="lc-status ${done?'done':locked?'locked-s':''}">${done?'▶ CLEARED':locked?'🔒 LOCKED':''}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('ptBar').style.width = (completedLevels.length / levels.length * 100) + '%';
+  document.getElementById('ptLabel').textContent = `CLEARANCE: ${completedLevels.length} / 7`;
+  document.getElementById('ptXP').textContent = totalXP + ' XP';
+}
+
+/* =============================================
+   SIDEBAR RENDER
+============================================= */
+function renderSidebar() {
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = `<div class="sidebar-header">// Mission Select</div>` +
+    levels.map((l, i) => {
+      const unlocked = i === 0 || completedLevels.includes(levels[i-1].id);
+      const done = completedLevels.includes(l.id);
+      return `<div class="sidebar-item ${!unlocked?'locked':''} ${currentLevelId===l.id?'active':''}" 
+               onclick="${unlocked?'openLevel('+l.id+')':''}" id="si-${l.id}">
+        <div class="si-num ${done?'done':''}">0${l.id}</div>
+        <div class="si-info">
+          <div class="si-title">${l.title}</div>
+          <div class="si-op">${l.codename.replace('OPERATION: ','')}</div>
+        </div>
+        ${done ? '<span style="color:var(--green-bright);font-size:10px">✓</span>' : !unlocked ? '<span style="color:var(--muted);font-size:12px">🔒</span>' : ''}
+      </div>`;
+    }).join('');
+}
+
+/* =============================================
+   OPEN LEVEL
+============================================= */
+function openLevel(id) {
+  currentLevelId = id;
+  const lvl = levels.find(l => l.id === id);
+
+  // Scroll to course
+  document.getElementById('course').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const placeholder = document.getElementById('lessonPlaceholder');
+  const container = document.getElementById('lessonContainer');
+
+  placeholder.style.display = 'none';
+
+  // Remove old, add new
+  container.innerHTML = buildLesson(lvl);
+
+  renderSidebar();
+  renderLevelMap();
+
+  // Update active card
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('active-card'));
+  const lc = document.getElementById('lc-' + id);
+  if (lc) lc.classList.add('active-card');
+
+  quizAnswered[id] = quizAnswered[id] || {};
+}
+
+/* =============================================
+   BUILD LESSON HTML
+============================================= */
+function buildLesson(lvl) {
+  const done = completedLevels.includes(lvl.id);
+  return `<div class="lesson-box active" id="lesson-${lvl.id}">
+    <div class="lesson-topbar">
+      <div class="ltb-left">
+        <div class="ltb-op">${lvl.codename}</div>
+        <div class="ltb-title">${lvl.title}</div>
+      </div>
+      <div class="ltb-right">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:2px;padding:7px 12px;border:1px solid var(--amber-dim)">+${lvl.xp} XP</span>
+      </div>
+    </div>
+    <div class="lesson-tabs">
+      <button class="ltab active" onclick="switchLTab(${lvl.id},'dossier',this)">📄 Dossier</button>
+      <button class="ltab" onclick="switchLTab(${lvl.id},'debrief',this)">🎯 Debrief</button>
+      <button class="ltab" onclick="switchLTab(${lvl.id},'cipher',this)">🧠 Cipher</button>
+    </div>
+    <div class="ltab-content active" id="lc-dossier-${lvl.id}">
+      ${lvl.lesson}
+      <button class="btn-complete ${done?'done':''}" onclick="completeLevel(${lvl.id})" id="completeBtn-${lvl.id}">
+        ${done ? '✓ LEVEL CLEARED' : '▶ MARK COMPLETE & UNLOCK NEXT LEVEL'}
+      </button>
+    </div>
+    <div class="ltab-content" id="lc-debrief-${lvl.id}">${buildQuiz(lvl)}</div>
+    <div class="ltab-content" id="lc-cipher-${lvl.id}">${buildMemory(lvl)}</div>
+  </div>`;
+}
+
+function switchLTab(id, name, btn) {
+  const lesson = document.getElementById('lesson-' + id);
+  lesson.querySelectorAll('.ltab').forEach(b => b.classList.remove('active'));
+  lesson.querySelectorAll('.ltab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('lc-' + name + '-' + id).classList.add('active');
+}
+
+/* =============================================
+   COMPLETE LEVEL
+============================================= */
+function completeLevel(id) {
+  if (!completedLevels.includes(id)) {
+    completedLevels.push(id);
+    const lvl = levels.find(l => l.id === id);
+    totalXP += lvl.xp;
+    localStorage.setItem('opCompleted', JSON.stringify(completedLevels));
+    localStorage.setItem('opXP', totalXP);
+  }
+  renderLevelMap();
+  renderSidebar();
+  const btn = document.getElementById('completeBtn-' + id);
+  if (btn) { btn.textContent = '✓ LEVEL CLEARED'; btn.classList.add('done'); }
+  // progress flash
+  const bar = document.getElementById('ptBar');
+  bar.style.boxShadow = '0 0 20px rgba(61,220,112,0.6)';
+  setTimeout(() => bar.style.boxShadow = '0 0 10px rgba(232,160,32,0.4)', 1500);
+}
+
+/* =============================================
+   QUIZ
+============================================= */
+function buildQuiz(lvl) {
+  return `<div>${lvl.quiz.map((q,qi) => `
+    <div class="quiz-question">
+      <div class="q-label">QUESTION ${qi+1} / ${lvl.quiz.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">${q.options.map((opt,oi) => `
+        <button class="q-option" id="qo-${lvl.id}-${qi}-${oi}" onclick="answerQ(${lvl.id},${qi},${oi})">
+          <span class="q-letter">${String.fromCharCode(65+oi)}.</span>${opt}
+        </button>`).join('')}
+      </div>
+      <div class="q-feedback" id="qf-${lvl.id}-${qi}"></div>
+    </div>`).join('')}
+    <div class="quiz-score-panel" id="qsp-${lvl.id}">
+      <div class="qs-num" id="qsn-${lvl.id}"></div>
+      <div class="qs-label">DEBRIEF SCORE</div>
+    </div>
+  </div>`;
+}
+
+function answerQ(lid, qi, oi) {
+  if (!quizAnswered[lid]) quizAnswered[lid] = {};
+  if (quizAnswered[lid][qi] !== undefined) return;
+  quizAnswered[lid][qi] = oi;
+  const lvl = levels.find(l => l.id === lid);
+  const q = lvl.quiz[qi];
+  const correct = oi === q.correct;
+  document.querySelectorAll(`[id^="qo-${lid}-${qi}-"]`).forEach(b => b.disabled = true);
+  document.getElementById(`qo-${lid}-${qi}-${q.correct}`).classList.add('correct');
+  if (!correct) document.getElementById(`qo-${lid}-${qi}-${oi}`).classList.add('wrong');
+  const fb = document.getElementById(`qf-${lid}-${qi}`);
+  fb.textContent = (correct?'✓ ':'✗ ') + q.feedback;
+  fb.className = `q-feedback show ${correct?'correct':'wrong'}`;
+  if (Object.keys(quizAnswered[lid]).length === lvl.quiz.length) {
+    const score = lvl.quiz.filter((q,i) => quizAnswered[lid][i] === q.correct).length;
+    const panel = document.getElementById(`qsp-${lid}`);
+    const scoreEl = document.getElementById(`qsn-${lid}`);
+    panel.style.display = 'block';
+    scoreEl.textContent = `${score} / ${lvl.quiz.length}`;
+    scoreEl.style.color = score === lvl.quiz.length ? 'var(--green-bright)' : score >= 2 ? 'var(--amber)' : 'var(--red)';
+  }
+}
+
+/* =============================================
+   MEMORY PUZZLES
+============================================= */
+function buildMemory(lvl) {
+  const m = lvl.memory;
+  if (m.type === 'sequence') return buildSeqPuzzle(lvl.id, m);
+  if (m.type === 'scene') return buildScenePuzzle(lvl.id, m);
+  if (m.type === 'pairs') return buildPairsPuzzle(lvl.id, m);
+  if (m.type === 'palace') return buildPalacePuzzle(lvl.id, m);
+  if (m.type === 'decode') return buildDecodePuzzle(lvl.id, m);
+  return '';
+}
+
+/* SEQUENCE */
+function buildSeqPuzzle(id, m) {
+  return `<div>
+    <div class="puzzle-intro">${m.intro}</div>
+    <div id="sp-show-${id}">
+      <div class="memory-sequence">${m.items.map(i=>`<div class="mem-item">${i}</div>`).join('')}</div>
+      <div style="text-align:center">
+        <div class="timer-display" id="sp-t-${id}">15</div>
+        <button class="btn-amber" onclick="startSeqTimer(${id})">▶ START COUNTDOWN</button>
+      </div>
+    </div>
+    <div id="sp-recall-${id}" style="display:none">
+      <div class="puzzle-intro">Time's up. Enter the sequence (comma-separated, no spaces between items):</div>
+      <div class="puzzle-input-wrap">
+        <input class="puzzle-input" id="sp-in-${id}" placeholder="ITEM1,ITEM2,ITEM3...">
+        <button class="btn-amber" onclick="checkSeq(${id})">SUBMIT</button>
+      </div>
+      <div class="puzzle-result" id="sp-res-${id}"></div>
+    </div>
+  </div>`;
+}
+
+function startSeqTimer(id) {
+  let t = 15;
+  const el = document.getElementById(`sp-t-${id}`);
+  if (!el) return;
+  const iv = setInterval(() => {
+    t--; el.textContent = t;
+    if (t <= 3) el.style.color = 'var(--red)';
+    if (t <= 0) {
+      clearInterval(iv);
+      document.getElementById(`sp-show-${id}`).style.display = 'none';
+      document.getElementById(`sp-recall-${id}`).style.display = 'block';
+    }
+  }, 1000);
+}
+
+function checkSeq(id) {
+  const m = levels.find(l=>l.id===id).memory;
+  const val = document.getElementById(`sp-in-${id}`).value.trim().toUpperCase().replace(/\s/g,'');
+  const ans = m.answer.toUpperCase().replace(/\s/g,'');
+  const res = document.getElementById(`sp-res-${id}`);
+  if (val === ans) {
+    res.textContent = '✓ SEQUENCE CONFIRMED. Memory integrity: INTACT.';
+    res.className = 'puzzle-result show success';
+  } else {
+    res.textContent = `✗ Incorrect. Correct sequence: ${m.answer}`;
+    res.className = 'puzzle-result show fail';
+  }
+}
+
+/* SCENE */
+function buildScenePuzzle(id, m) {
+  const secs = m.secs || 20;
+  return `<div>
+    <div class="puzzle-intro">${m.intro}</div>
+    <div id="sc-show-${id}">
+      <div class="scene-box">
+        <div class="scene-label">// FIELD OBSERVATION REPORT //</div>
+        ${m.scene.split('\n').map(l=>`<div>${l}</div>`).join('')}
+      </div>
+      <div style="text-align:center">
+        <div class="timer-display" id="sc-t-${id}">${secs}</div>
+        <button class="btn-amber" onclick="startSceneTimer(${id},${secs})">▶ READ & MEMORIZE</button>
+      </div>
+    </div>
+    <div id="sc-recall-${id}" style="display:none">
+      <div class="puzzle-intro">Report hidden. Answer from memory:</div>
+      ${m.questions.map((q,qi)=>`
+        <div style="margin-bottom:16px">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--amber);margin-bottom:8px;letter-spacing:2px">Q${qi+1}: ${q.q}</div>
+          <div class="puzzle-input-wrap"><input class="puzzle-input" id="sc-in-${id}-${qi}" placeholder="Your answer..."></div>
+        </div>`).join('')}
+      <button class="btn-amber" onclick="checkScene(${id})">SUBMIT ANSWERS</button>
+      <div class="puzzle-result" id="sc-res-${id}"></div>
+    </div>
+  </div>`;
+}
+
+function startSceneTimer(id, secs) {
+  let t = secs;
+  const el = document.getElementById(`sc-t-${id}`);
+  const iv = setInterval(() => {
+    t--; el.textContent = t;
+    if (t <= 5) el.style.color = 'var(--red)';
+    if (t <= 0) {
+      clearInterval(iv);
+      document.getElementById(`sc-show-${id}`).style.display = 'none';
+      document.getElementById(`sc-recall-${id}`).style.display = 'block';
+    }
+  }, 1000);
+}
+
+function checkScene(id) {
+  const m = levels.find(l=>l.id===id).memory;
+  let correct = 0;
+  m.questions.forEach((q,qi) => {
+    const v = document.getElementById(`sc-in-${id}-${qi}`).value.toLowerCase().trim();
+    if (v.includes(q.a.toLowerCase())) correct++;
+  });
+  const res = document.getElementById(`sc-res-${id}`);
+  if (correct === m.questions.length) {
+    res.textContent = `✓ PERFECT RECALL. ${correct}/${m.questions.length} confirmed. Observation rating: ELITE.`;
+    res.className = 'puzzle-result show success';
+  } else {
+    res.textContent = `${correct}/${m.questions.length} correct. Answers: ${m.questions.map(q=>q.a).join(' | ')}`;
+    res.className = 'puzzle-result show fail';
+  }
+}
+
+/* PAIRS */
+function buildPairsPuzzle(id, m) {
+  return `<div>
+    <div class="puzzle-intro">${m.intro}</div>
+    <div id="pr-show-${id}">
+      ${m.pairs.map(p=>`<div class="pair-row"><div class="pair-symbol">${p.symbol}</div><div class="pair-arrow">→</div><div class="pair-meaning">${p.meaning}</div></div>`).join('')}
+      <div style="text-align:center;margin-top:16px">
+        <div class="timer-display" id="pr-t-${id}">15</div>
+        <button class="btn-amber" onclick="startPairsTimer(${id})">▶ MEMORIZE</button>
+      </div>
+    </div>
+    <div id="pr-recall-${id}" style="display:none">
+      <div class="puzzle-intro">Symbols hidden. Enter each meaning:</div>
+      ${m.pairs.map((p,pi)=>`
+        <div style="margin-bottom:10px">
+          <div style="font-family:var(--mono);font-size:14px;color:var(--amber);margin-bottom:6px">${p.symbol} = ?</div>
+          <div class="puzzle-input-wrap"><input class="puzzle-input" id="pr-in-${id}-${pi}" placeholder="meaning..."></div>
+        </div>`).join('')}
+      <button class="btn-amber" onclick="checkPairs(${id})">DECODE</button>
+      <div class="puzzle-result" id="pr-res-${id}"></div>
+    </div>
+  </div>`;
+}
+
+function startPairsTimer(id) {
+  let t = 15;
+  const el = document.getElementById(`pr-t-${id}`);
+  const iv = setInterval(() => {
+    t--; el.textContent = t;
+    if (t <= 5) el.style.color = 'var(--red)';
+    if (t <= 0) {
+      clearInterval(iv);
+      document.getElementById(`pr-show-${id}`).style.display = 'none';
+      document.getElementById(`pr-recall-${id}`).style.display = 'block';
+    }
+  }, 1000);
+}
+
+function checkPairs(id) {
+  const m = levels.find(l=>l.id===id).memory;
+  let correct = 0;
+  m.pairs.forEach((p,pi) => {
+    const v = document.getElementById(`pr-in-${id}-${pi}`).value.toLowerCase().trim();
+    if (v === p.meaning.toLowerCase()) correct++;
+  });
+  const res = document.getElementById(`pr-res-${id}`);
+  if (correct >= 5) {
+    res.textContent = `✓ ${correct}/${m.pairs.length} correct. Cipher memory: OPERATIONAL.`;
+    res.className = 'puzzle-result show success';
+  } else {
+    res.textContent = `${correct}/${m.pairs.length}. Key: ${m.pairs.map(p=>`${p.symbol}=${p.meaning}`).join(' | ')}`;
+    res.className = 'puzzle-result show fail';
+  }
+}
+
+/* PALACE */
+function buildPalacePuzzle(id, m) {
+  return `<div>
+    <div class="puzzle-intro">${m.intro}</div>
+    <div id="pal-show-${id}">
+      <div style="border:1px solid var(--border);padding:0 8px;margin-bottom:12px">
+        ${m.items.map(i=>`<div class="palace-row"><div class="palace-loc">${i.location}</div><div class="palace-item">${i.item}</div></div>`).join('')}
+      </div>
+      <div style="text-align:center">
+        <div class="timer-display" id="pal-t-${id}">20</div>
+        <button class="btn-amber" onclick="startPalaceTimer(${id})">▶ WALK THE PALACE</button>
+      </div>
+    </div>
+    <div id="pal-recall-${id}" style="display:none">
+      <div class="puzzle-intro">The palace faded. Recall from your mental walk:</div>
+      ${m.questions.map((q,qi)=>`
+        <div style="margin-bottom:14px">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--amber);margin-bottom:8px;letter-spacing:2px">Q${qi+1}: ${q.q}</div>
+          <div class="puzzle-input-wrap"><input class="puzzle-input" id="pal-in-${id}-${qi}" placeholder="What's there?"></div>
+        </div>`).join('')}
+      <button class="btn-amber" onclick="checkPalace(${id})">SUBMIT</button>
+      <div class="puzzle-result" id="pal-res-${id}"></div>
+    </div>
+  </div>`;
+}
+
+function startPalaceTimer(id) {
+  let t = 20;
+  const el = document.getElementById(`pal-t-${id}`);
+  const iv = setInterval(() => {
+    t--; el.textContent = t;
+    if (t <= 5) el.style.color = 'var(--red)';
+    if (t <= 0) {
+      clearInterval(iv);
+      document.getElementById(`pal-show-${id}`).style.display = 'none';
+      document.getElementById(`pal-recall-${id}`).style.display = 'block';
+    }
+  }, 1000);
+}
+
+function checkPalace(id) {
+  const m = levels.find(l=>l.id===id).memory;
+  let correct = 0;
+  m.questions.forEach((q,qi) => {
+    const v = document.getElementById(`pal-in-${id}-${qi}`).value.toLowerCase().trim();
+    if (v.includes(q.a.toLowerCase())) correct++;
+  });
+  const res = document.getElementById(`pal-res-${id}`);
+  if (correct === m.questions.length) {
+    res.textContent = `✓ PALACE INTACT. All ${correct} stations recalled. Memory architecture: SOLID.`;
+    res.className = 'puzzle-result show success';
+  } else {
+    res.textContent = `${correct}/${m.questions.length}. Answers: ${m.questions.map(q=>q.a).join(' | ')}`;
+    res.className = 'puzzle-result show fail';
+  }
+}
+
+/* DECODE */
+function buildDecodePuzzle(id, m) {
+  return `<div>
+    <div class="puzzle-intro">${m.intro}</div>
+    <div class="scene-box" style="border-color:var(--amber-dim)">
+      <div class="scene-label">// ENCODED FIELD REPORT //</div>
+      <div style="font-family:var(--mono);font-size:13px;line-height:2;color:var(--amber)">${m.encoded}</div>
+    </div>
+    <div style="padding:12px 16px;background:var(--surface2);border-left:2px solid var(--muted);margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:6px;text-transform:uppercase">DECODING HINT</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6">${m.hint}</div>
+    </div>
+    <textarea class="puzzle-input" id="dec-in-${id}" placeholder="Write the key intelligence signals you decoded..."></textarea>
+    <div style="margin-top:10px"><button class="btn-amber" onclick="checkDecode(${id})">DECODE & SUBMIT</button></div>
+    <div class="puzzle-result" id="dec-res-${id}"></div>
+  </div>`;
+}
+
+function checkDecode(id) {
+  const m = levels.find(l=>l.id===id).memory;
+  const val = document.getElementById(`dec-in-${id}`).value.toLowerCase().trim();
+  const keywords = m.answer.split(',').map(k=>k.trim().toLowerCase());
+  const found = keywords.filter(k=>val.includes(k));
+  const res = document.getElementById(`dec-res-${id}`);
+  if (found.length >= 2) {
+    res.textContent = `✓ ${found.length}/${keywords.length} intelligence signals identified. Decoding: CONFIRMED.`;
+    res.className = 'puzzle-result show success';
+  } else {
+    res.textContent = `Only ${found.length} signal(s) found. Look for: ${m.answer}`;
+    res.className = 'puzzle-result show fail';
+  }
+}
+
+/* =============================================
+   INIT
+============================================= */
+renderLevelMap();
+renderSidebar();
+</script>
+</body>
+</html>
